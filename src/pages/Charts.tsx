@@ -7,7 +7,9 @@ import {
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useFinance } from '../context/FinanceContext';
+import { useLanguage } from '../context/LanguageContext';
 import { convertAmount, formatCurrency } from '../utils/currency';
+import type { ExpenseCategory } from '../types/finance';
 
 const COLORS = ['#10b981', '#f59e0b', '#3b82f6', '#ec4899', '#8b5cf6', '#f97316', '#06b6d4', '#84cc16', '#6b7280'];
 
@@ -15,6 +17,7 @@ type ChartView = 'category' | 'monthly' | 'trend' | 'debt';
 
 export default function Charts() {
   const { state } = useFinance();
+  const { t, categoryLabel } = useLanguage();
   const { expenses, debts, currency } = state;
   const [activeView, setActiveView] = useState<ChartView>('category');
 
@@ -24,8 +27,13 @@ export default function Charts() {
       const amt = convertAmount(e.amount, e.currency, currency);
       map[e.category] = (map[e.category] || 0) + amt;
     });
-    return Object.entries(map).map(([name, value]) => ({ name, value: Math.round(value) })).sort((a, b) => b.value - a.value);
-  }, [expenses, currency]);
+    return Object.entries(map)
+      .map(([name, value]) => ({
+        name: categoryLabel(name as ExpenseCategory),
+        value: Math.round(value),
+      }))
+      .sort((a, b) => b.value - a.value);
+  }, [expenses, currency, categoryLabel]);
 
   const monthlyData = useMemo(() => {
     const map: Record<string, number> = {};
@@ -58,10 +66,10 @@ export default function Charts() {
   }, [debts, currency]);
 
   const views: { key: ChartView; label: string }[] = [
-    { key: 'category', label: 'By Category' },
-    { key: 'monthly', label: 'Monthly' },
-    { key: 'trend', label: 'Trend' },
-    { key: 'debt', label: 'Debts' },
+    { key: 'category', label: t('charts.byCategory') },
+    { key: 'monthly', label: t('charts.monthly') },
+    { key: 'trend', label: t('charts.trend') },
+    { key: 'debt', label: t('charts.debts') },
   ];
 
   const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: { name: string; value: number; color: string }[]; label?: string }) => {
@@ -90,8 +98,8 @@ export default function Charts() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
-            <h1 className="text-3xl font-bold text-slate-800 dark:text-white font-heading">Charts</h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">Interactive visualizations of your financial data</p>
+            <h1 className="text-3xl font-bold text-slate-800 dark:text-white font-heading">{t('charts.title')}</h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-1">{t('charts.subtitle')}</p>
           </motion.div>
 
           <motion.div
@@ -124,9 +132,9 @@ export default function Charts() {
                   transition={{ duration: 0.4 }}
                   className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-6"
                 >
-                  <h2 className="text-base font-bold text-slate-800 dark:text-white font-heading mb-6">Expenses by Category</h2>
+                  <h2 className="text-base font-bold text-slate-800 dark:text-white font-heading mb-6">{t('charts.expensesByCategory')}</h2>
                   {categoryData.length === 0 ? (
-                    <div className="h-64 flex items-center justify-center text-slate-400 dark:text-slate-500 text-sm">No data available</div>
+                    <div className="h-64 flex items-center justify-center text-slate-400 dark:text-slate-500 text-sm">{t('charts.noData')}</div>
                   ) : (
                     <ResponsiveContainer width="100%" height={280}>
                       <PieChart>
@@ -147,9 +155,9 @@ export default function Charts() {
                   transition={{ duration: 0.4, delay: 0.1 }}
                   className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-6"
                 >
-                  <h2 className="text-base font-bold text-slate-800 dark:text-white font-heading mb-6">Category Breakdown</h2>
+                  <h2 className="text-base font-bold text-slate-800 dark:text-white font-heading mb-6">{t('charts.categoryBreakdown')}</h2>
                   {categoryData.length === 0 ? (
-                    <div className="h-64 flex items-center justify-center text-slate-400 dark:text-slate-500 text-sm">No data available</div>
+                    <div className="h-64 flex items-center justify-center text-slate-400 dark:text-slate-500 text-sm">{t('charts.noData')}</div>
                   ) : (
                     <ResponsiveContainer width="100%" height={280}>
                       <BarChart data={categoryData} layout="vertical" margin={{ left: 20 }}>
@@ -157,7 +165,7 @@ export default function Charts() {
                         <XAxis type="number" tick={{ fontSize: 11, fill: '#94a3b8' }} tickFormatter={(v) => formatCurrency(v, currency)} />
                         <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: '#94a3b8' }} width={80} />
                         <Tooltip content={<CustomTooltip />} />
-                        <Bar dataKey="value" name="Amount" radius={[0, 6, 6, 0]}>
+                        <Bar dataKey="value" name={t('charts.amount')} radius={[0, 6, 6, 0]}>
                           {categoryData.map((_, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                           ))}
@@ -176,9 +184,9 @@ export default function Charts() {
                 transition={{ duration: 0.4 }}
                 className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-6"
               >
-                <h2 className="text-base font-bold text-slate-800 dark:text-white font-heading mb-6">Monthly Spending</h2>
+                <h2 className="text-base font-bold text-slate-800 dark:text-white font-heading mb-6">{t('charts.monthlySpending')}</h2>
                 {monthlyData.length === 0 ? (
-                  <div className="h-64 flex items-center justify-center text-slate-400 dark:text-slate-500 text-sm">No data available</div>
+                  <div className="h-64 flex items-center justify-center text-slate-400 dark:text-slate-500 text-sm">{t('charts.noData')}</div>
                 ) : (
                   <ResponsiveContainer width="100%" height={320}>
                     <BarChart data={monthlyData}>
@@ -186,7 +194,7 @@ export default function Charts() {
                       <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#94a3b8' }} />
                       <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} tickFormatter={(v) => formatCurrency(v, currency)} />
                       <Tooltip content={<CustomTooltip />} />
-                      <Bar dataKey="total" name="Total" fill="#10b981" radius={[6, 6, 0, 0]} />
+                      <Bar dataKey="total" name={t('charts.total')} fill="#10b981" radius={[6, 6, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 )}
@@ -200,9 +208,9 @@ export default function Charts() {
                 transition={{ duration: 0.4 }}
                 className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-6"
               >
-                <h2 className="text-base font-bold text-slate-800 dark:text-white font-heading mb-6">Cumulative Spending Trend</h2>
+                <h2 className="text-base font-bold text-slate-800 dark:text-white font-heading mb-6">{t('charts.cumulativeTrend')}</h2>
                 {trendData.length === 0 ? (
-                  <div className="h-64 flex items-center justify-center text-slate-400 dark:text-slate-500 text-sm">No data available</div>
+                  <div className="h-64 flex items-center justify-center text-slate-400 dark:text-slate-500 text-sm">{t('charts.noData')}</div>
                 ) : (
                   <ResponsiveContainer width="100%" height={320}>
                     <AreaChart data={trendData}>
@@ -216,8 +224,8 @@ export default function Charts() {
                       <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#94a3b8' }} />
                       <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} tickFormatter={(v) => formatCurrency(v, currency)} />
                       <Tooltip content={<CustomTooltip />} />
-                      <Area type="monotone" dataKey="cumulative" name="Cumulative" stroke="#10b981" strokeWidth={2} fill="url(#colorCumulative)" />
-                      <Line type="monotone" dataKey="amount" name="Per Transaction" stroke="#f59e0b" strokeWidth={2} dot={false} />
+                      <Area type="monotone" dataKey="cumulative" name={t('charts.cumulative')} stroke="#10b981" strokeWidth={2} fill="url(#colorCumulative)" />
+                      <Line type="monotone" dataKey="amount" name={t('charts.perTransaction')} stroke="#f59e0b" strokeWidth={2} dot={false} />
                     </AreaChart>
                   </ResponsiveContainer>
                 )}
@@ -231,9 +239,9 @@ export default function Charts() {
                 transition={{ duration: 0.4 }}
                 className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-6"
               >
-                <h2 className="text-base font-bold text-slate-800 dark:text-white font-heading mb-6">Debt: Principal vs Interest</h2>
+                <h2 className="text-base font-bold text-slate-800 dark:text-white font-heading mb-6">{t('charts.debtPrincipalInterest')}</h2>
                 {debtData.length === 0 ? (
-                  <div className="h-64 flex items-center justify-center text-slate-400 dark:text-slate-500 text-sm">No debts recorded</div>
+                  <div className="h-64 flex items-center justify-center text-slate-400 dark:text-slate-500 text-sm">{t('charts.noDebts')}</div>
                 ) : (
                   <ResponsiveContainer width="100%" height={320}>
                     <BarChart data={debtData}>
@@ -242,8 +250,8 @@ export default function Charts() {
                       <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} tickFormatter={(v) => formatCurrency(v, currency)} />
                       <Tooltip content={<CustomTooltip />} />
                       <Legend />
-                      <Bar dataKey="principal" name="Principal" fill="#3b82f6" radius={[6, 6, 0, 0]} />
-                      <Bar dataKey="interest" name="Interest" fill="#f87171" radius={[6, 6, 0, 0]} />
+                      <Bar dataKey="principal" name={t('charts.principal')} fill="#3b82f6" radius={[6, 6, 0, 0]} />
+                      <Bar dataKey="interest" name={t('charts.interest')} fill="#f87171" radius={[6, 6, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 )}

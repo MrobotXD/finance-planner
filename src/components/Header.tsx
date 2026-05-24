@@ -3,22 +3,25 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { Sun, Moon, DollarSign, Menu, X, TrendingUp, LogOut } from 'lucide-react';
 import { useFinance } from '../context/FinanceContext';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+import LanguageToggle from './LanguageToggle';
 import type { Currency } from '../types/finance';
-
-const navLinks = [
-  { to: '/dashboard', label: 'Dashboard' },
-  { to: '/expenses', label: 'Expenses' },
-  { to: '/debts', label: 'Debts' },
-  { to: '/charts', label: 'Charts' },
-  { to: '/chatbot', label: 'AI Advisor' },
-];
 
 export default function Header() {
   const { state, dispatch } = useFinance();
   const { logout } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const navLinks = [
+    { to: '/dashboard', label: t('nav.dashboard') },
+    { to: '/expenses', label: t('nav.expenses') },
+    { to: '/debts', label: t('nav.debts') },
+    { to: '/charts', label: t('nav.charts') },
+    { to: '/chatbot', label: t('nav.chatbot') },
+  ];
 
   const handleLogout = () => {
     logout();
@@ -75,10 +78,12 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <LanguageToggle className="hidden sm:inline-flex" />
+
           <button
             onClick={toggleCurrency}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-200 dark:border-slate-600 text-sm font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all duration-200"
-            aria-label="Toggle currency"
+            aria-label={t('a11y.toggleCurrency')}
           >
             <DollarSign className="w-3.5 h-3.5" />
             {state.currency}
@@ -87,7 +92,7 @@ export default function Header() {
           <button
             onClick={toggleTheme}
             className="w-9 h-9 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200"
-            aria-label="Toggle theme"
+            aria-label={t('a11y.toggleTheme')}
           >
             {state.theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
           </button>
@@ -95,16 +100,16 @@ export default function Header() {
           <button
             onClick={handleLogout}
             className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200"
-            aria-label="Cerrar sesión"
+            aria-label={t('nav.logout')}
           >
             <LogOut className="w-3.5 h-3.5" />
-            Salir
+            {t('nav.logout')}
           </button>
 
           <button
             className="md:hidden w-9 h-9 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200"
             onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle menu"
+            aria-label={t('a11y.toggleMenu')}
             aria-expanded={mobileOpen}
           >
             {mobileOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -114,6 +119,9 @@ export default function Header() {
 
       {mobileOpen && (
         <div className="md:hidden bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-700 px-6 py-4 flex flex-col gap-1">
+          <div className="pb-2">
+            <LanguageToggle />
+          </div>
           <button
             onClick={() => {
               handleLogout();
@@ -121,7 +129,7 @@ export default function Header() {
             }}
             className="px-4 py-3 rounded-lg text-sm font-medium text-rose-600 dark:text-rose-400 text-left"
           >
-            Cerrar sesión
+            {t('nav.logout')}
           </button>
           {navLinks.map(({ to, label }) => (
             <NavLink

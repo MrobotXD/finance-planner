@@ -6,6 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './styles.css';
 
+import { LanguageProvider } from './src/context/LanguageContext';
 import { AuthProvider } from './src/context/AuthContext';
 import { FinanceProvider } from './src/context/FinanceContext';
 import ProtectedRoute from './src/components/ProtectedRoute';
@@ -21,6 +22,7 @@ import NotFound from './src/pages/NotFound';
 
 const App: React.FC = () => {
   return (
+    <LanguageProvider>
     <AuthProvider>
       <FinanceProvider>
         <Theme appearance="inherit" radius="large" scaling="100%">
@@ -85,6 +87,7 @@ const App: React.FC = () => {
         </Theme>
       </FinanceProvider>
     </AuthProvider>
+    </LanguageProvider>
   );
 };
 

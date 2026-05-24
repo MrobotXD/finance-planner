@@ -3,9 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { TrendingUp } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+import LanguageToggle from '../components/LanguageToggle';
 
 export default function Register() {
   const { register, user } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,16 +22,16 @@ export default function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirm) {
-      toast.error('Las contraseñas no coinciden');
+      toast.error(t('auth.passwordMismatch'));
       return;
     }
     setSubmitting(true);
     try {
       await register(email, password);
-      toast.success('Cuenta creada correctamente');
+      toast.success(t('auth.accountCreated'));
       navigate('/dashboard', { replace: true });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Error al registrarse');
+      toast.error(err instanceof Error ? err.message : t('auth.registerError'));
     } finally {
       setSubmitting(false);
     }
@@ -36,6 +39,9 @@ export default function Register() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center px-6">
+      <div className="absolute top-6 right-6">
+        <LanguageToggle />
+      </div>
       <div className="w-full max-w-md">
         <Link to="/" className="flex items-center justify-center gap-2 mb-8">
           <div className="w-9 h-9 rounded-lg bg-emerald-500 flex items-center justify-center">
@@ -45,12 +51,12 @@ export default function Register() {
         </Link>
 
         <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-8 shadow-lg">
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-white font-heading mb-2">Crear cuenta</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Empieza a organizar tus finanzas hoy</p>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white font-heading mb-2">{t('auth.registerTitle')}</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">{t('auth.registerSubtitle')}</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{t('auth.email')}</label>
               <input
                 type="email"
                 required
@@ -60,7 +66,7 @@ export default function Register() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Contraseña</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{t('auth.password')}</label>
               <input
                 type="password"
                 required
@@ -71,7 +77,7 @@ export default function Register() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Confirmar contraseña</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{t('auth.confirmPassword')}</label>
               <input
                 type="password"
                 required
@@ -86,14 +92,14 @@ export default function Register() {
               disabled={submitting}
               className="w-full py-3 bg-emerald-500 text-white font-semibold rounded-lg hover:bg-emerald-600 disabled:opacity-60 transition-colors"
             >
-              {submitting ? 'Creando...' : 'Crear cuenta'}
+              {submitting ? t('auth.submitRegisterLoading') : t('auth.submitRegister')}
             </button>
           </form>
 
           <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
-            ¿Ya tienes cuenta?{' '}
+            {t('auth.hasAccount')}{' '}
             <Link to="/login" className="text-emerald-600 dark:text-emerald-400 font-medium hover:underline">
-              Inicia sesión
+              {t('auth.login')}
             </Link>
           </p>
         </div>

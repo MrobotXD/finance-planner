@@ -7,6 +7,7 @@ import CategoryBadge from '../components/CategoryBadge';
 import AddExpenseModal from '../components/AddExpenseModal';
 import ImportExcelModal from '../components/ImportExcelModal';
 import { useFinance } from '../context/FinanceContext';
+import { useLanguage } from '../context/LanguageContext';
 import { convertAmount, formatCurrency } from '../utils/currency';
 import type { ExpenseCategory } from '../types/finance';
 
@@ -14,6 +15,7 @@ const ALL_CATEGORIES: (ExpenseCategory | 'All')[] = ['All', 'Food', 'Transport',
 
 export default function Expenses() {
   const { state, dispatch } = useFinance();
+  const { t, categoryLabel } = useLanguage();
   const { expenses, currency } = state;
   const [addOpen, setAddOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
@@ -50,8 +52,8 @@ export default function Expenses() {
             className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8"
           >
             <div>
-              <h1 className="text-3xl font-bold text-slate-800 dark:text-white font-heading">Expenses</h1>
-              <p className="text-slate-500 dark:text-slate-400 mt-1">Track and categorize your spending</p>
+              <h1 className="text-3xl font-bold text-slate-800 dark:text-white font-heading">{t('expenses.title')}</h1>
+              <p className="text-slate-500 dark:text-slate-400 mt-1">{t('expenses.subtitle')}</p>
             </div>
             <div className="flex gap-3">
               <button
@@ -59,14 +61,14 @@ export default function Expenses() {
                 className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200"
               >
                 <Upload className="w-4 h-4" />
-                Import CSV
+                {t('expenses.importCsv')}
               </button>
               <button
                 onClick={() => setAddOpen(true)}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition-all duration-200 hover:scale-105"
               >
                 <Plus className="w-4 h-4" />
-                Add Expense
+                {t('expenses.addExpense')}
               </button>
             </div>
           </motion.div>
@@ -84,7 +86,7 @@ export default function Expenses() {
                   <input
                     value={search}
                     onChange={e => setSearch(e.target.value)}
-                    placeholder="Search expenses..."
+                    placeholder={t('expenses.search')}
                     className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all duration-200"
                   />
                 </div>
@@ -95,22 +97,22 @@ export default function Expenses() {
                     onChange={e => setCategoryFilter(e.target.value as ExpenseCategory | 'All')}
                     className="pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all duration-200"
                   >
-                    {ALL_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                    {ALL_CATEGORIES.map(c => <option key={c} value={c}>{categoryLabel(c)}</option>)}
                   </select>
                 </div>
               </div>
 
               <div className="flex items-center justify-between mb-4">
-                <p className="text-sm text-slate-500 dark:text-slate-400">{filtered.length} expenses</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{t('expenses.count', { count: filtered.length })}</p>
                 <p className="text-sm font-semibold text-rose-600 dark:text-rose-400">
-                  Total: {formatCurrency(totalFiltered, currency)}
+                  {t('expenses.total')}: {formatCurrency(totalFiltered, currency)}
                 </p>
               </div>
 
               {filtered.length === 0 ? (
                 <div className="text-center py-12 text-slate-400 dark:text-slate-500">
                   <Search className="w-8 h-8 mx-auto mb-2 opacity-40" />
-                  <p className="text-sm">No expenses found</p>
+                  <p className="text-sm">{t('expenses.noResults')}</p>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -136,7 +138,7 @@ export default function Expenses() {
                         <button
                           onClick={() => dispatch({ type: 'DELETE_EXPENSE', payload: expense.id })}
                           className="w-7 h-7 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-rose-50 dark:hover:bg-rose-900/20 text-rose-400 hover:text-rose-600 transition-all duration-200"
-                          aria-label="Delete expense"
+                          aria-label={t('expenses.delete')}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -153,9 +155,9 @@ export default function Expenses() {
               transition={{ delay: 0.2 }}
               className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-5"
             >
-              <h2 className="text-base font-bold text-slate-800 dark:text-white font-heading mb-4">Top Categories</h2>
+              <h2 className="text-base font-bold text-slate-800 dark:text-white font-heading mb-4">{t('expenses.topCategories')}</h2>
               {categoryTotals.length === 0 ? (
-                <p className="text-sm text-slate-400 dark:text-slate-500 text-center py-4">No data yet</p>
+                <p className="text-sm text-slate-400 dark:text-slate-500 text-center py-4">{t('expenses.noData')}</p>
               ) : (
                 <div className="space-y-3">
                   {categoryTotals.map(([cat, total]) => {
@@ -164,7 +166,7 @@ export default function Expenses() {
                     return (
                       <div key={cat}>
                         <div className="flex justify-between text-xs mb-1">
-                          <span className="font-medium text-slate-700 dark:text-slate-300">{cat}</span>
+                          <span className="font-medium text-slate-700 dark:text-slate-300">{categoryLabel(cat as ExpenseCategory)}</span>
                           <span className="text-slate-500 dark:text-slate-400">{formatCurrency(total, currency)}</span>
                         </div>
                         <div className="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">

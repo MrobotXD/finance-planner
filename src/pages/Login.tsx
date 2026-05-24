@@ -3,9 +3,12 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { TrendingUp } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+import LanguageToggle from '../components/LanguageToggle';
 
 export default function Login() {
   const { login, user } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard';
@@ -23,10 +26,10 @@ export default function Login() {
     setSubmitting(true);
     try {
       await login(email, password);
-      toast.success('¡Bienvenido de nuevo!');
+      toast.success(t('auth.welcomeBack'));
       navigate(from, { replace: true });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Error al iniciar sesión');
+      toast.error(err instanceof Error ? err.message : t('auth.loginError'));
     } finally {
       setSubmitting(false);
     }
@@ -34,6 +37,9 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center px-6">
+      <div className="absolute top-6 right-6">
+        <LanguageToggle />
+      </div>
       <div className="w-full max-w-md">
         <Link to="/" className="flex items-center justify-center gap-2 mb-8">
           <div className="w-9 h-9 rounded-lg bg-emerald-500 flex items-center justify-center">
@@ -43,23 +49,23 @@ export default function Login() {
         </Link>
 
         <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-8 shadow-lg">
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-white font-heading mb-2">Iniciar sesión</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Accede a tu panel financiero</p>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white font-heading mb-2">{t('auth.loginTitle')}</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">{t('auth.loginSubtitle')}</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{t('auth.email')}</label>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
-                placeholder="tu@email.com"
+                placeholder={t('auth.emailPlaceholder')}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Contraseña</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{t('auth.password')}</label>
               <input
                 type="password"
                 required
@@ -75,14 +81,14 @@ export default function Login() {
               disabled={submitting}
               className="w-full py-3 bg-emerald-500 text-white font-semibold rounded-lg hover:bg-emerald-600 disabled:opacity-60 transition-colors"
             >
-              {submitting ? 'Entrando...' : 'Entrar'}
+              {submitting ? t('auth.submitLoginLoading') : t('auth.submitLogin')}
             </button>
           </form>
 
           <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
-            ¿No tienes cuenta?{' '}
+            {t('auth.noAccount')}{' '}
             <Link to="/register" className="text-emerald-600 dark:text-emerald-400 font-medium hover:underline">
-              Regístrate
+              {t('auth.register')}
             </Link>
           </p>
         </div>

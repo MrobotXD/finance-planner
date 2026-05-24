@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import type { ExpenseCategory } from '../types/finance';
 
 const categoryConfig: Record<ExpenseCategory, { color: string; bg: string }> = {
@@ -14,10 +15,11 @@ const categoryConfig: Record<ExpenseCategory, { color: string; bg: string }> = {
 };
 
 export default function CategoryBadge({ category }: { category: ExpenseCategory }) {
+  const { categoryLabel } = useLanguage();
   const { color, bg } = categoryConfig[category];
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${bg} ${color}`}>
-      {category}
+      {categoryLabel(category)}
     </span>
   );
 }
