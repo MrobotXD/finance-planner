@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_URL || '';
+const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 
 function getToken(): string | null {
   return localStorage.getItem('authToken');
@@ -12,7 +12,25 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
   };
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  const url = `${API_BASE}${path}`;
+
+  let res: Response;
+  try {
+    res = await fetch(url, { ...options, headers });
+  } catch {
+    if (!API_BASE && import.meta.env.PROD) {
+      throw new Error(
+        'La web no está enlazada a la API. En Render → Static Site → VITE_API_URL = URL de tu API (https://...) y haz Redeploy.'
+      );
+    }
+    if (!API_BASE) {
+      throw new Error('No se pudo conectar. ¿Está corriendo la API en local? (npm run dev en server/)');
+    }
+    throw new Error(
+      `No se pudo conectar con la API (${API_BASE}). En plan gratis espera ~1 min y reintenta, o revisa que la API esté en verde.`
+    );
+  }
+
   const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {

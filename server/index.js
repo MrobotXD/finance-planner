@@ -10,16 +10,29 @@ const PORT = process.env.PORT || 3001;
 
 const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
   .split(',')
-  .map((o) => o.trim());
+  .map((o) => o.trim().replace(/\/$/, ''))
+  .filter(Boolean);
+
+function isAllowedOrigin(origin) {
+  if (!origin) return true;
+  const normalized = origin.replace(/\/$/, '');
+  if (allowedOrigins.includes(normalized)) return true;
+  // Render: web y API en *.onrender.com — evita fallos si CLIENT_URL no coincide exacto
+  try {
+    const host = new URL(normalized).hostname;
+    if (host.endsWith('.onrender.com') && allowedOrigins.some((o) => o.includes('.onrender.com'))) {
+      return true;
+    }
+  } catch {
+    /* ignore */
+  }
+  return false;
+}
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(null, false);
-      }
+      callback(null, isAllowedOrigin(origin));
     },
     credentials: true,
   })
