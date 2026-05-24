@@ -26,6 +26,16 @@ app.use(
 );
 app.use(express.json({ limit: '2mb' }));
 
+app.get('/', (_req, res) => {
+  res.json({
+    name: 'Fintrack API',
+    status: 'running',
+    health: '/api/health',
+    auth: '/api/auth/register | /api/auth/login',
+    finance: '/api/finance/state (requiere token)',
+  });
+});
+
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true });
 });
