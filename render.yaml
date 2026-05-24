@@ -7,6 +7,7 @@ services:
     name: fintrack-api
     runtime: node
     rootDir: server
+    plan: free
     buildCommand: npm install
     startCommand: npm start
     envVars:
@@ -17,4 +18,19 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: CLIENT_URL
-        sync: false
+        fromService:
+          type: web
+          name: fintrack-web
+          envVarKey: RENDER_EXTERNAL_URL
+
+  - type: web
+    name: fintrack-web
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: fintrack-api
+          envVarKey: RENDER_EXTERNAL_URL
