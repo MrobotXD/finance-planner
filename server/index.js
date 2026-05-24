@@ -43,10 +43,12 @@ async function start() {
     process.exit(1);
   }
 
-  await initDb();
-  app.listen(PORT, () => {
-    console.log(`API en http://localhost:${PORT}`);
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`API escuchando en puerto ${PORT}`);
   });
+
+  await initDb();
+  console.log('Base de datos lista');
 }
 
 start().catch((err) => {

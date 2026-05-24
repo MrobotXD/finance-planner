@@ -1,5 +1,7 @@
-# Render solo permite 1 Postgres FREE por cuenta.
-# No creamos base aquí: enlaza DATABASE_URL a tu Postgres existente en el dashboard.
+# Variables con sync: false → las rellenas en Render al crear el Blueprint:
+#   DATABASE_URL = Internal Database URL de tu Postgres existente
+#   CLIENT_URL     = https://fintrack-web.onrender.com  (URL del static site)
+#   VITE_API_URL   = https://fintrack-api.onrender.com  (URL de la API)
 services:
   - type: web
     name: fintrack-api
@@ -8,25 +10,24 @@ services:
     plan: free
     buildCommand: npm install
     startCommand: npm start
+    healthCheckPath: /api/health
     envVars:
       - key: DATABASE_URL
         sync: false
       - key: JWT_SECRET
         generateValue: true
       - key: CLIENT_URL
-        fromService:
-          type: web
-          name: fintrack-web
-          envVarKey: RENDER_EXTERNAL_URL
+        sync: false
 
   - type: web
     name: fintrack-web
     runtime: static
     buildCommand: npm install && npm run build
     staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
     envVars:
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: fintrack-api
-          envVarKey: RENDER_EXTERNAL_URL
+        sync: false
