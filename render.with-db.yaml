@@ -1,5 +1,9 @@
-# Render solo permite 1 Postgres FREE por cuenta.
-# No creamos base aquí: enlaza DATABASE_URL a tu Postgres existente en el dashboard.
+# Usa este archivo SOLO si NO tienes otra base Postgres free en Render.
+# Renómbralo a render.yaml (o bórrala la base free vieja que no uses).
+databases:
+  - name: fintrack-db
+    plan: free
+
 services:
   - type: web
     name: fintrack-api
@@ -10,7 +14,9 @@ services:
     startCommand: npm start
     envVars:
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: fintrack-db
+          property: connectionString
       - key: JWT_SECRET
         generateValue: true
       - key: CLIENT_URL
