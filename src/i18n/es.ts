@@ -5,6 +5,7 @@ export const es = {
     expenses: 'Gastos',
     debts: 'Deudas',
     charts: 'Gráficos',
+    budget: 'Presupuesto',
     chatbot: 'Asesor IA',
     logout: 'Salir',
   },
