@@ -1,50 +1,29 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App.tsx';
-import './styles.css';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Login from './Login';
+import Register from './Register';
+import Dashboard from './Dashboard';
+import Expenses from './Expenses';
+import Debts from './Debts';
+import Charts from './Charts';
+import Chatbot from './Chatbot';
+import Budget from './Budget';
 
-// Send logs to parent frame (like a preview system)
-function postToParent(level: string, ...args: any[]): void {
-  if (window.parent !== window) {
-    window.parent.postMessage(
-      {
-        type: 'iframe-console',
-        level,
-        args,
-      },
-      '*'
-    );
-  }
-}
-
-// Global error handler
-window.onerror = function (message, source, lineno, colno, error) {
-  const errPayload = {
-    message,
-    source,
-    lineno,
-    colno,
-    stack: error?.stack,
-  };
-  postToParent('error', '[Meku_Error_Caught]', errPayload);
+const App = () => {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/expenses" element={<Expenses />} />
+        <Route path="/debts" element={<Debts />} />
+        <Route path="/charts" element={<Charts />} />
+        <Route path="/chatbot" element={<Chatbot />} />
+        <Route path="/budget" element={<Budget />} />
+      </Routes>
+    </Router>
+  );
 };
 
-// Unhandled promise rejection
-window.onunhandledrejection = function (event) {
-  postToParent('error', '[Meku_Error_Caught]', { reason: event.reason });
-};
-
-// Patch console
-(['log', 'warn', 'info', 'error'] as const).forEach((level) => {
-  const original = console[level];
-  console[level] = (...args: any[]) => {
-    postToParent(level, ...args);
-    original(...args);
-  };
-});
-
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+export default App;
