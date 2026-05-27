@@ -18,6 +18,7 @@ import Expenses from './src/pages/Expenses';
 import Debts from './src/pages/Debts';
 import Charts from './src/pages/Charts';
 import Chatbot from './src/pages/Chatbot';
+import Budget from './src/pages/Budget';
 import NotFound from './src/pages/NotFound';
 
 const App: React.FC = () => {
@@ -75,6 +76,14 @@ const App: React.FC = () => {
                   element={
                     <ProtectedRoute>
                       <Chatbot />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/budget"
+                  element={
+                    <ProtectedRoute>
+                      <Budget />
                     </ProtectedRoute>
                   }
                 />
