@@ -3,7 +3,7 @@ import { X, Upload, FileText, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFinance } from '../context/FinanceContext';
 import { useLanguage } from '../context/LanguageContext';
-import { parseCSVToExpenses } from '../utils/excelImport';
+import { parseExcelToExpenses } from '../utils/excelImport';
 import { toast } from 'react-toastify';
 
 interface Props {
@@ -15,17 +15,13 @@ export default function ImportExcelModal({ open, onClose }: Props) {
   const { dispatch } = useFinance();
   const { t } = useLanguage();
   const fileRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState<string | null>(null);
   const [parsedCount, setParsedCount] = useState(0);
   const [dragging, setDragging] = useState(false);
 
-  const handleFile = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target?.result as string;
-      const expenses = parseCSVToExpenses(text);
+  const handleFile = async (file: File) => {
+    try {
+      const expenses = await parseExcelToExpenses(file);
       setParsedCount(expenses.length);
-      setPreview(text.split('\n').slice(0, 4).join('\n'));
       if (expenses.length > 0) {
         dispatch({ type: 'IMPORT_EXPENSES', payload: expenses });
         toast.success(t('modal.importSuccess', { count: expenses.length }));
@@ -33,8 +29,10 @@ export default function ImportExcelModal({ open, onClose }: Props) {
       } else {
         toast.error(t('modal.importError'));
       }
-    };
-    reader.readAsText(file);
+    } catch (err) {
+      console.error(err);
+      toast.error(t('modal.importError'));
+    }
   };
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,7 +59,9 @@ export default function ImportExcelModal({ open, onClose }: Props) {
             className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-6 z-10"
           >
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-bold text-slate-800 dark:text-white font-heading">{t('modal.importCsv')}</h2>
+              <h2 className="text-lg font-bold text-slate-800 dark:text-white font-heading">
+                {t('modal.importExcel') || 'Importar desde Excel'}
+              </h2>
               <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-700">
                 <X className="w-4 h-4 text-slate-500" />
               </button>
@@ -77,19 +77,25 @@ export default function ImportExcelModal({ open, onClose }: Props) {
               }`}
             >
               <Upload className="w-8 h-8 text-emerald-500 mx-auto mb-3" />
-              <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('modal.importDrag')}</p>
-              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{t('modal.importOr')}</p>
-              <input ref={fileRef} type="file" accept=".csv,.txt" className="hidden" onChange={onFileChange} />
+              <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                {t('modal.importDrag') || 'Arrastra tu archivo aquí'}
+              </p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                {t('modal.importOr') || 'o haz click para seleccionar'}
+              </p>
+              <input ref={fileRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={onFileChange} />
             </div>
 
             <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl">
               <div className="flex items-center gap-2 mb-2">
                 <FileText className="w-4 h-4 text-slate-500" />
-                <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">{t('modal.importFormat')}</p>
+                <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  {t('modal.importFormat') || 'Formato esperado'}
+                </p>
               </div>
               <code className="text-xs text-slate-500 dark:text-slate-400 block leading-relaxed">
-                description,amount,category,date,currency<br />
-                Lunch,25000,Food,2025-01-10,COP
+                description | amount | category | date | currency<br />
+                Lunch | 25000 | Food | 2025-01-10 | COP
               </code>
             </div>
 
