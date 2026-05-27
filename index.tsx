@@ -1,13 +1,13 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Login from './Login';
-import Register from './Register';
-import Dashboard from './Dashboard';
-import Expenses from './Expenses';
-import Debts from './Debts';
-import Charts from './Charts';
-import Chatbot from './Chatbot';
-import Budget from './Budget';
+import Login from './src/pages/Login';
+import Register from './src/pages/Register';
+import Dashboard from './src/pages/Dashboard';
+import Expenses from './src/pages/Expenses';
+import Debts from './src/pages/Debts';
+import Charts from './src/pages/Charts';
+import Chatbot from './src/pages/Chatbot';
+import Budget from './src/pages/Budget';
 
 const App = () => {
   return (
